@@ -1,0 +1,1615 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shifu</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #121a24;
+        --bg-card: rgba(255, 255, 255, 0.04);
+        --bg-hover: rgba(255, 255, 255, 0.07);
+        --border: rgba(255, 255, 255, 0.06);
+        --text: #e8eaef;
+        --text-dim: #8b95a5;
+        --text-faint: #5a6575;
+        --accent: #3b7a57;
+        --accent-hover: #4a9068;
+        --accent-glow: rgba(59, 122, 87, 0.25);
+        --green: #4ade80;
+        --red: #f87171;
+        --orange: #fb923c;
+      }
+
+      body {
+        width: 400px;
+        min-height: 500px;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          system-ui,
+          sans-serif;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--text);
+        background: var(--bg);
+        overflow-x: hidden;
+      }
+
+      body.expanded {
+        width: 100vw;
+        min-height: 100vh;
+      }
+
+      @keyframes gradientShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      @keyframes pulse-dot {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.5);
+        }
+
+        50% {
+          box-shadow: 0 0 0 5px rgba(74, 222, 128, 0);
+        }
+      }
+
+      @keyframes fadeSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-4px);
+        }
+      }
+
+      .header {
+        padding: 16px 20px 12px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          120deg,
+          rgba(44, 82, 130, 0.06),
+          rgba(59, 122, 87, 0.06),
+          rgba(196, 162, 101, 0.06)
+        );
+        background-size: 200% 200%;
+        animation: gradientShift 6s ease infinite;
+        pointer-events: none;
+      }
+
+      .header-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(59, 122, 87, 0.3);
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+      }
+
+      .header-icon:hover {
+        transform: scale(1.08) rotate(-3deg);
+        box-shadow: 0 4px 20px rgba(59, 122, 87, 0.5);
+      }
+
+      .header-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .header h1 {
+        font-size: 16px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #2c5282, #3b7a57, #c4a265);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        animation: gradientShift 4s ease infinite;
+      }
+
+      .header-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 6px;
+      }
+
+      .icon-btn {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-dim);
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .icon-btn:hover {
+        background: rgba(59, 122, 87, 0.12);
+        border-color: rgba(59, 122, 87, 0.3);
+        color: var(--accent);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 122, 87, 0.15);
+      }
+
+      .view {
+        display: none;
+      }
+
+      .view.active {
+        display: block;
+      }
+
+      .login-view {
+        padding: 40px 30px;
+        text-align: center;
+        animation: fadeSlideIn 0.4s ease;
+      }
+
+      .login-logo {
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 16px;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow:
+          0 8px 32px var(--accent-glow),
+          0 0 0 1px rgba(59, 122, 87, 0.15);
+        animation: float 3s ease-in-out infinite;
+        transition: transform 0.3s;
+      }
+
+      .login-logo:hover {
+        transform: scale(1.06);
+      }
+
+      .login-logo img {
+        width: 100%;
+        height: 100%;
+      }
+
+      .login-view h2 {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        background: linear-gradient(135deg, #e8e8ef, #a8a8be);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .login-view .subtitle {
+        color: var(--text-dim);
+        font-size: 13px;
+        margin-bottom: 28px;
+      }
+
+      .login-form {
+        text-align: left;
+      }
+
+      .input-group {
+        margin-bottom: 14px;
+      }
+
+      .input-group label {
+        display: block;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-dim);
+        margin-bottom: 5px;
+        transition: color 0.2s;
+      }
+
+      .input-group:focus-within label {
+        color: var(--accent);
+      }
+
+      .input-wrap {
+        display: flex;
+        align-items: center;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .input-wrap:focus-within {
+        border-color: var(--accent);
+        box-shadow:
+          0 0 0 3px var(--accent-glow),
+          0 4px 16px rgba(59, 122, 87, 0.1);
+        background: rgba(59, 122, 87, 0.04);
+      }
+
+      .input-wrap .icon {
+        font-size: 14px;
+        margin-right: 8px;
+        color: var(--text-faint);
+        transition: transform 0.2s;
+      }
+
+      .input-wrap:focus-within .icon {
+        transform: scale(1.15);
+      }
+
+      .input-wrap input {
+        flex: 1;
+        padding: 10px 0;
+        font-size: 13px;
+        font-family: inherit;
+        color: var(--text);
+        background: none;
+        border: none;
+        outline: none;
+      }
+
+      .input-wrap input::placeholder {
+        color: var(--text-faint);
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 11px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+        color: #fff;
+        background: linear-gradient(135deg, #3b7a57, #4a9068);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-top: 6px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #4a9068, #5aa078);
+        box-shadow: 0 6px 24px var(--accent-glow);
+        transform: translateY(-1px);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px var(--accent-glow);
+      }
+
+      .login-divider {
+        display: flex;
+        align-items: center;
+        margin: 20px 0;
+        color: var(--text-faint);
+        font-size: 11px;
+      }
+
+      .login-divider::before,
+      .login-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      .login-divider span {
+        padding: 0 12px;
+      }
+
+      .login-note {
+        font-size: 11px;
+        color: var(--text-faint);
+        text-align: center;
+        margin-top: 16px;
+        line-height: 1.6;
+      }
+
+      .login-note a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .user-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .user-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #2c5282, #3b7a57);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .user-email {
+        flex: 1;
+        font-size: 12px;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .user-bar .logout-btn {
+        font-size: 11px;
+        color: var(--text-faint);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+      }
+
+      .user-bar .logout-btn:hover {
+        color: var(--red);
+      }
+
+      .tabs {
+        display: flex;
+        padding: 4px 16px;
+        gap: 2px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.01);
+      }
+
+      .tab {
+        flex: 1;
+        padding: 8px 0;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-dim);
+        background: none;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+      }
+
+      .tab:hover {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .tab.active {
+        color: #fff;
+        background: linear-gradient(
+          135deg,
+          rgba(59, 122, 87, 0.25),
+          rgba(44, 82, 130, 0.2)
+        );
+        box-shadow:
+          0 2px 8px rgba(59, 122, 87, 0.15),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+        animation: fadeSlideIn 0.25s ease;
+      }
+
+      .section {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .section:last-child {
+        border-bottom: none;
+      }
+
+      .section-title {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+
+      .status-card {
+        padding: 14px 16px;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        margin-bottom: 12px;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .status-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        padding: 1px;
+        background: linear-gradient(
+          135deg,
+          rgba(59, 122, 87, 0.1),
+          transparent,
+          rgba(44, 82, 130, 0.1)
+        );
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      .status-card:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(59, 122, 87, 0.15);
+      }
+
+      .status-card .status-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--red);
+        transition: all 0.3s;
+      }
+
+      .status-dot.active {
+        background: var(--green);
+        animation: pulse-dot 2s ease-in-out infinite;
+      }
+
+      .status-badge {
+        font-size: 10px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        transition: all 0.3s;
+      }
+
+      .status-badge.connected {
+        color: var(--green);
+        background: rgba(74, 222, 128, 0.1);
+        box-shadow: 0 0 8px rgba(74, 222, 128, 0.1);
+      }
+
+      .status-badge.disconnected {
+        color: var(--orange);
+        background: rgba(251, 146, 60, 0.1);
+      }
+
+      .field {
+        margin-bottom: 12px;
+      }
+
+      .field:last-child {
+        margin-bottom: 0;
+      }
+
+      .field label {
+        display: block;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-dim);
+        margin-bottom: 4px;
+      }
+
+      select,
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 9px 12px;
+        font-size: 12px;
+        font-family: inherit;
+        color: var(--text);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        outline: none;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+
+      select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%233b7a57' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 28px;
+      }
+
+      select:focus,
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+      }
+
+      input::placeholder {
+        color: var(--text-faint);
+      }
+
+      option {
+        background: #1a1a2e;
+        color: var(--text);
+      }
+
+      .btn {
+        padding: 8px 14px;
+        font-size: 12px;
+        font-weight: 500;
+        font-family: inherit;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        background: var(--bg-card);
+        color: var(--text);
+      }
+
+      .btn:hover {
+        background: var(--bg-hover);
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-1px);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .btn-save {
+        width: 100%;
+        padding: 10px;
+        background: linear-gradient(135deg, #3b7a57, #4a9068);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-save::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 70%
+        );
+        background-size: 200% 100%;
+        transition: background-position 0.5s;
+      }
+
+      .btn-save:hover {
+        box-shadow: 0 4px 20px var(--accent-glow);
+        transform: translateY(-1px);
+      }
+
+      .btn-save:hover::after {
+        background-position: -100% 0;
+      }
+
+      .btn-save:active {
+        transform: translateY(0);
+      }
+
+      .btn-sm {
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+
+      .btn-danger {
+        color: var(--red);
+        border-color: rgba(248, 113, 113, 0.15);
+      }
+
+      .btn-danger:hover {
+        background: rgba(248, 113, 113, 0.08);
+        border-color: rgba(248, 113, 113, 0.3);
+      }
+
+      .guide-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 8px;
+      }
+
+      .guide-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .guide-header:hover {
+        background: var(--bg-hover);
+      }
+
+      .guide-header .provider-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+      }
+
+      .guide-header .provider-name {
+        flex: 1;
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .guide-header .chevron {
+        color: var(--text-faint);
+        font-size: 10px;
+        transition: transform 0.2s;
+      }
+
+      .guide-card.open .chevron {
+        transform: rotate(180deg);
+      }
+
+      .guide-body {
+        display: none;
+        padding: 0 14px 14px;
+      }
+
+      .guide-card.open .guide-body {
+        display: block;
+      }
+
+      .step-list {
+        list-style: none;
+        counter-reset: steps;
+      }
+
+      .step-list li {
+        counter-increment: steps;
+        padding: 6px 0 6px 28px;
+        font-size: 12px;
+        color: var(--text-dim);
+        position: relative;
+        line-height: 1.5;
+        border-left: 1px solid var(--border);
+        margin-left: 9px;
+      }
+
+      .step-list li:last-child {
+        border-left: none;
+      }
+
+      .step-list li::before {
+        content: counter(steps);
+        position: absolute;
+        left: -1px;
+        top: 6px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: translateX(-50%);
+      }
+
+      .step-list a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .step-list a:hover {
+        text-decoration: underline;
+      }
+
+      .step-list code {
+        font-size: 10px;
+        padding: 1px 5px;
+        border-radius: 4px;
+        background: rgba(59, 122, 87, 0.12);
+        color: var(--accent-hover);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+      }
+
+      .doc-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: var(--bg-card);
+        border-radius: 8px;
+        margin-bottom: 4px;
+      }
+
+      .doc-name {
+        flex: 1;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .doc-delete {
+        background: none;
+        border: none;
+        color: var(--text-faint);
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .doc-delete:hover {
+        color: var(--red);
+      }
+
+      .doc-empty {
+        text-align: center;
+        padding: 16px;
+        color: var(--text-faint);
+        font-size: 12px;
+      }
+
+      .shortcut-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 7px 0;
+        transition: background 0.2s;
+        border-radius: 6px;
+        margin: 0 -6px;
+        padding-left: 6px;
+        padding-right: 6px;
+      }
+
+      .shortcut-row:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .shortcut-label {
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+
+      kbd {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 22px;
+        padding: 3px 7px;
+        font-size: 10px;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        color: #c8c8d8;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.08) 0%,
+          rgba(255, 255, 255, 0.03) 100%
+        );
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom-width: 2px;
+        border-bottom-color: rgba(255, 255, 255, 0.05);
+        border-radius: 5px;
+        margin-left: 2px;
+        box-shadow:
+          0 1px 3px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      .cache-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .cache-stats {
+        font-size: 12px;
+        color: var(--text-faint);
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%) translateY(60px);
+        padding: 10px 20px;
+        font-size: 12px;
+        font-weight: 500;
+        border-radius: 10px;
+        pointer-events: none;
+        transition:
+          transform 0.3s ease,
+          opacity 0.3s ease;
+        opacity: 0;
+        z-index: 100;
+      }
+
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+
+      .toast.success {
+        background: rgba(74, 222, 128, 0.15);
+        color: var(--green);
+        border: 1px solid rgba(74, 222, 128, 0.2);
+      }
+
+      .toast.error {
+        background: rgba(248, 113, 113, 0.15);
+        color: var(--red);
+        border: 1px solid rgba(248, 113, 113, 0.2);
+      }
+
+      .upload-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="view login-view" id="login-view">
+      <div class="login-logo">
+        <img src="icons/icon128.png" alt="Shifu" />
+      </div>
+      <h2>Welcome to Shifu</h2>
+      <p class="subtitle">Your AI-powered study assistant</p>
+
+      <form class="login-form" id="login-form">
+        <div class="input-group">
+          <label>Your Name</label>
+          <div class="input-wrap">
+            <span class="icon">U</span>
+            <input
+              type="text"
+              id="login-name"
+              placeholder="John Doe"
+              required
+            />
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <span class="icon">✉</span>
+            <input
+              type="text"
+              id="login-email"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Get Started →</button>
+      </form>
+
+      <p class="login-note">
+        Your info is stored <strong>locally only</strong> — nothing leaves your
+        browser.<br />
+        No account server, no tracking.
+      </p>
+    </div>
+
+    <div class="view" id="main-view">
+      <div class="header">
+        <div class="header-icon"><img src="icons/icon48.png" alt="" /></div>
+        <h1>Shifu</h1>
+        <div class="header-actions">
+          <button class="icon-btn" id="expand-btn" title="Expand to full page">
+            ⛶
+          </button>
+        </div>
+      </div>
+
+      <div class="user-bar">
+        <div class="user-avatar" id="user-avatar">J</div>
+        <span class="user-email" id="user-email">user@example.com</span>
+        <button class="logout-btn" id="logout-btn">Log out</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="home">Home</button>
+        <button class="tab" data-tab="api">AI Setup</button>
+        <button class="tab" data-tab="notes">Notes</button>
+
+        <button class="tab" data-tab="settings">More</button>
+      </div>
+
+      <div class="tab-content active" id="tab-home">
+        <div class="section">
+          <div class="section-title">AI Connection</div>
+          <div class="status-card">
+            <div class="status-row">
+              <div class="status-indicator">
+                <span class="status-dot" id="ai-status-dot"></span>
+                <span id="ai-status-text">No AI connected</span>
+              </div>
+              <span class="status-badge disconnected" id="ai-status-badge"
+                >Setup needed</span
+              >
+            </div>
+          </div>
+          <div class="field">
+            <label>Default Explanation Mode</label>
+            <select id="default-mode">
+              <option value="student">Student Level</option>
+              <option value="eli5">Explain Like I'm 5</option>
+              <option value="expert">Expert Level</option>
+              <option value="bullet">Bullet Summary</option>
+              <option value="example">With Examples</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Quick Actions</div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap">
+            <button
+              class="btn"
+              id="action-screenshot"
+              style="
+                flex: 1;
+                min-width: 140px;
+                padding: 14px 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+              "
+            >
+              <span
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  width: 40px;
+                  height: 40px;
+                  border-radius: 12px;
+                  background: linear-gradient(
+                    135deg,
+                    rgba(59, 122, 87, 0.15),
+                    rgba(44, 82, 130, 0.15)
+                  );
+                "
+                ><svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#3b7a57"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"
+                  />
+                  <circle cx="12" cy="13" r="4" /></svg
+              ></span>
+              <span
+                style="font-size: 12px; font-weight: 600; color: var(--text)"
+                >Screenshot</span
+              >
+              <span style="font-size: 10px; color: var(--text-faint)"
+                >Explain screen content</span
+              >
+            </button>
+            <button
+              class="btn"
+              id="action-youtube"
+              style="
+                flex: 1;
+                min-width: 140px;
+                padding: 14px 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+              "
+            >
+              <span
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  width: 40px;
+                  height: 40px;
+                  border-radius: 12px;
+                  background: linear-gradient(
+                    135deg,
+                    rgba(255, 0, 0, 0.12),
+                    rgba(255, 68, 68, 0.12)
+                  );
+                "
+                ><svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <rect
+                    x="2"
+                    y="4"
+                    width="20"
+                    height="16"
+                    rx="4"
+                    fill="#FF0000"
+                  />
+                  <polygon points="10,8 10,16 16,12" fill="white" /></svg
+              ></span>
+              <span
+                style="font-size: 12px; font-weight: 600; color: var(--text)"
+                >YouTube</span
+              >
+              <span style="font-size: 10px; color: var(--text-faint)"
+                >Generate video notes</span
+              >
+            </button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Keyboard Shortcuts</div>
+          <div class="shortcut-row">
+            <span class="shortcut-label">Explain selection</span>
+            <div><kbd>⌘</kbd><kbd>⇧</kbd><kbd>E</kbd></div>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-label">Screenshot explain</span>
+            <div><kbd>⌘</kbd><kbd>⇧</kbd><kbd>L</kbd></div>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-label">YouTube notes</span>
+            <div><kbd>⌘</kbd><kbd>⇧</kbd><kbd>Y</kbd></div>
+          </div>
+          <div style="font-size: 11px; color: #888; margin-top: 6px">
+            Configure shortcuts at
+            <a href="#" id="open-shortcuts" style="color: #3b7a57"
+              >chrome://extensions/shortcuts</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-api">
+        <div class="section">
+          <div class="section-title">Choose your AI Provider</div>
+
+          <div class="field">
+            <label>Provider</label>
+            <select id="provider-select">
+              <option value="groq">Groq (FREE)</option>
+              <option value="openai">OpenAI (ChatGPT)</option>
+              <option value="gemini">Google Gemini</option>
+              <option value="claude">Anthropic Claude</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>API Key</label>
+            <input
+              type="password"
+              id="api-key-input"
+              placeholder="Paste your API key here…"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field">
+            <label>Model</label>
+            <select id="model-select"></select>
+          </div>
+
+          <button class="btn-save" id="save-api-btn">Save API Key</button>
+        </div>
+
+        <div class="section">
+          <div class="section-title">How to get your API key</div>
+
+          <div class="guide-card open" id="guide-openai">
+            <div class="guide-header">
+              <div
+                class="provider-icon"
+                style="background: rgba(16, 163, 127, 0.15)"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#10a37f">
+                  <path
+                    d="M22.28 9.56c.44-1.35.25-2.82-.5-4.03a4.94 4.94 0 00-5.33-2.37A4.94 4.94 0 0012.78.5a4.94 4.94 0 00-4.72 3.43 4.94 4.94 0 00-3.3 1.6 4.95 4.95 0 00-.6 5.22A4.95 4.95 0 005.1 15.5a4.95 4.95 0 001 3.47 4.94 4.94 0 005.33 2.36 4.93 4.93 0 003.67 1.63 4.94 4.94 0 004.72-3.44 4.95 4.95 0 003.3-1.6 4.95 4.95 0 00.6-5.22 4.95 4.95 0 00-.94-3.1c-.18-.25-.37-.48-.5-.04zM13.08 21.43a3.7 3.7 0 01-2.38-.87l.12-.07 3.95-2.28a.64.64 0 00.33-.56v-5.57l1.67.96a.06.06 0 01.03.05v4.62a3.72 3.72 0 01-3.72 3.72zM4.18 17.6a3.7 3.7 0 01-.44-2.5l.12.07 3.95 2.28a.65.65 0 00.65 0l4.82-2.79v1.93a.06.06 0 01-.02.05l-3.99 2.31a3.72 3.72 0 01-5.09-1.35zM3.12 8.36A3.7 3.7 0 015.06 6.7v4.7a.64.64 0 00.32.56l4.83 2.78-1.67.97a.06.06 0 01-.06 0L4.5 13.4a3.72 3.72 0 01-1.37-5.08zm15.14 3.52l-4.82-2.78 1.67-.97a.06.06 0 01.06 0l3.99 2.3a3.72 3.72 0 01-.57 6.72v-4.7a.65.65 0 00-.33-.57zm1.66-2.52l-.12-.07-3.95-2.28a.65.65 0 00-.65 0l-4.82 2.79V7.87a.06.06 0 01.02-.05l3.99-2.31a3.72 3.72 0 015.53 3.86zM8.68 12.96l-1.67-.97a.06.06 0 01-.03-.04V7.33a3.72 3.72 0 016.1-2.85l-.12.07-3.95 2.28a.64.64 0 00-.33.56v5.57zm.91-1.96L12 9.5l2.41 1.39v2.78L12 15.06l-2.41-1.39V11z"
+                  />
+                </svg>
+              </div>
+              <span class="provider-name">OpenAI (ChatGPT)</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="guide-body">
+              <ol class="step-list">
+                <li>
+                  Go to
+                  <a href="https://platform.openai.com/signup" target="_blank"
+                    >platform.openai.com</a
+                  >
+                  and sign up or log in
+                </li>
+                <li>
+                  Navigate to
+                  <a href="https://platform.openai.com/api-keys" target="_blank"
+                    >API Keys</a
+                  >
+                  page
+                </li>
+                <li>Click <code>+ Create new secret key</code></li>
+                <li>Give it a name like "Shifu" and copy the key</li>
+                <li>Paste the key above — it starts with <code>sk-</code></li>
+                <li>
+                  Add billing at
+                  <a
+                    href="https://platform.openai.com/account/billing"
+                    target="_blank"
+                    >Billing page</a
+                  >
+                  (pay-as-you-go, ~$0.002/query)
+                </li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="guide-card" id="guide-gemini">
+            <div class="guide-header">
+              <div
+                class="provider-icon"
+                style="background: rgba(66, 133, 244, 0.15)"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"
+                    fill="#4285f4"
+                  />
+                </svg>
+              </div>
+              <span class="provider-name">Google Gemini</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="guide-body">
+              <ol class="step-list">
+                <li>
+                  Go to
+                  <a href="https://aistudio.google.com/apikey" target="_blank"
+                    >Google AI Studio</a
+                  >
+                </li>
+                <li>Sign in with your Google account</li>
+                <li>Click <code>Create API Key</code></li>
+                <li>Select a project or create one, then copy the key</li>
+                <li>
+                  Paste it above — <strong>free tier</strong> available (15
+                  req/min)
+                </li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="guide-card" id="guide-claude">
+            <div class="guide-header">
+              <div
+                class="provider-icon"
+                style="background: rgba(204, 120, 50, 0.15)"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#cc7832">
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.5 14.5c-.83.83-2.17.83-3 0l-4-4c-.83-.83-.83-2.17 0-3l4-4c.83-.83 2.17-.83 3 0 .83.83.83 2.17 0 3L12 12l3.5 3.5z"
+                  />
+                </svg>
+              </div>
+              <span class="provider-name">Anthropic Claude</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="guide-body">
+              <ol class="step-list">
+                <li>
+                  Go to
+                  <a href="https://console.anthropic.com/" target="_blank"
+                    >console.anthropic.com</a
+                  >
+                  and sign up
+                </li>
+                <li>
+                  Navigate to
+                  <a
+                    href="https://console.anthropic.com/settings/keys"
+                    target="_blank"
+                    >API Keys</a
+                  >
+                </li>
+                <li>Click <code>Create Key</code></li>
+                <li>Name it "Shifu" and copy the key</li>
+                <li>Paste it above — it starts with <code>sk-ant-</code></li>
+                <li>
+                  Add credits at
+                  <a
+                    href="https://console.anthropic.com/settings/billing"
+                    target="_blank"
+                    >Billing</a
+                  >
+                  (pay-as-you-go)
+                </li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="guide-card open" id="guide-groq">
+            <div class="guide-header">
+              <div
+                class="provider-icon"
+                style="background: rgba(244, 114, 44, 0.15)"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#f4722b">
+                  <path
+                    d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z"
+                  />
+                </svg>
+              </div>
+              <span class="provider-name">Groq (FREE) — Recommended</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="guide-body">
+              <ol class="step-list">
+                <li>
+                  Go to
+                  <a href="https://console.groq.com/" target="_blank"
+                    >console.groq.com</a
+                  >
+                  and sign up (Google or email)
+                </li>
+                <li>
+                  Navigate to
+                  <a href="https://console.groq.com/keys" target="_blank"
+                    >API Keys</a
+                  >
+                </li>
+                <li>Click <code>Create API Key</code></li>
+                <li>Name it "Shifu" and copy the key</li>
+                <li>Paste it above — it starts with <code>gsk_</code></li>
+                <li>
+                  <strong>No credit card needed — completely free!</strong>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-notes">
+        <div class="section">
+          <div class="section-title">Your Notes</div>
+          <div
+            class="status-card"
+            style="text-align: center; padding: 20px 16px"
+          >
+            <div
+              style="
+                font-size: 28px;
+                margin-bottom: 6px;
+                color: var(--accent);
+                font-weight: 700;
+              "
+            >
+              #
+            </div>
+            <div
+              id="notes-count"
+              style="font-size: 20px; font-weight: 700; color: var(--accent)"
+            >
+              0
+            </div>
+            <div
+              style="font-size: 11px; color: var(--text-faint); margin-top: 2px"
+            >
+              notes saved
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 10px">
+            <button class="btn btn-save" style="flex: 1" id="export-notes-btn">
+              Export All as PDF
+            </button>
+          </div>
+          <div style="margin-top: 8px">
+            <button
+              class="btn btn-sm btn-danger"
+              style="width: 100%"
+              id="clear-notes-btn"
+            >
+              Clear All Notes
+            </button>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">How It Works</div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 10px;
+                background: rgba(255, 255, 255, 0.02);
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.04);
+              "
+            >
+              <span
+                style="
+                  font-size: 12px;
+                  width: 28px;
+                  height: 28px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background: rgba(59, 122, 87, 0.12);
+                  border-radius: 8px;
+                  flex-shrink: 0;
+                  font-weight: 600;
+                  color: var(--accent);
+                "
+                >1</span
+              >
+              <span style="font-size: 12px; color: var(--text-dim)"
+                >Select text on any page</span
+              >
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 10px;
+                background: rgba(255, 255, 255, 0.02);
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.04);
+              "
+            >
+              <span
+                style="
+                  font-size: 12px;
+                  width: 28px;
+                  height: 28px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background: rgba(59, 122, 87, 0.12);
+                  border-radius: 8px;
+                  flex-shrink: 0;
+                  font-weight: 600;
+                  color: var(--accent);
+                "
+                >2</span
+              >
+              <span style="font-size: 12px; color: var(--text-dim)"
+                >Click <strong style="color: var(--text)">Save</strong> in the
+                tooltip</span
+              >
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 10px;
+                background: rgba(255, 255, 255, 0.02);
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.04);
+              "
+            >
+              <span
+                style="
+                  font-size: 12px;
+                  width: 28px;
+                  height: 28px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background: rgba(59, 122, 87, 0.12);
+                  border-radius: 8px;
+                  flex-shrink: 0;
+                  font-weight: 600;
+                  color: var(--accent);
+                "
+                >3</span
+              >
+              <span style="font-size: 12px; color: var(--text-dim)"
+                >Press <kbd>⌘</kbd><kbd>⇧</kbd><kbd>N</kbd> for notes
+                panel</span
+              >
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 10px;
+                background: rgba(255, 255, 255, 0.02);
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.04);
+              "
+            >
+              <span
+                style="
+                  font-size: 12px;
+                  width: 28px;
+                  height: 28px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background: rgba(59, 122, 87, 0.12);
+                  border-radius: 8px;
+                  flex-shrink: 0;
+                  font-weight: 600;
+                  color: var(--accent);
+                "
+                >4</span
+              >
+              <span style="font-size: 12px; color: var(--text-dim)"
+                >Add comments or get AI explanations</span
+              >
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 10px;
+                background: rgba(255, 255, 255, 0.02);
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.04);
+              "
+            >
+              <span
+                style="
+                  font-size: 12px;
+                  width: 28px;
+                  height: 28px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background: rgba(59, 122, 87, 0.12);
+                  border-radius: 8px;
+                  flex-shrink: 0;
+                  font-weight: 600;
+                  color: var(--accent);
+                "
+                >5</span
+              >
+              <span style="font-size: 12px; color: var(--text-dim)"
+                >Export as PDF when done</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-settings">
+        <div class="section">
+          <div class="section-title">Cache</div>
+          <div class="cache-row">
+            <span class="cache-stats" id="cache-stats"
+              >0 cached explanations</span
+            >
+            <button class="btn btn-sm btn-danger" id="clear-cache-btn">
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">About</div>
+          <p style="font-size: 12px; color: var(--text-dim); line-height: 1.7">
+            <strong>Shifu v1.0.0</strong><br />
+            Context-aware AI study assistant. Your API keys and data stay on
+            your device — nothing is sent to any server except the AI provider
+            you choose.<br /><br />
+            Built for students.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
